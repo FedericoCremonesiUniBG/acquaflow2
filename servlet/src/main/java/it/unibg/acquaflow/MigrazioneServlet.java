@@ -73,8 +73,9 @@ public class MigrazioneServlet extends HttpServlet {
                 reader.endObject();
             }
         } catch (Exception e) {
+            e.printStackTrace();
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            response.getWriter().write("Errore durante la migrazione: " + e.getMessage());
+            response.getWriter().write("Errore durante la migrazione: " + e.getClass().getName() + " - " + e.getMessage());
             return;
         }
 
