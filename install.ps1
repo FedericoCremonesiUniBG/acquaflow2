@@ -108,4 +108,41 @@ Write-Host "=== Passo 7/7: Avvio della migrazione ==="
 Invoke-RestMethod -Uri "http://localhost:8080/migrazione/migra"
 
 Write-Host ""
+Write-Host "=== Verifica automatica dell'integrita della migrazione ==="
+
+$conteggiRemoti = Invoke-RestMethod -Uri "http://distribuzioneacqua2.altervista.org/php/export/conteggio.php"
+
+$mappaTabelle = [ordered]@{
+    "clienti" = "cliente"
+    "punti_fornitura" = "puntofornitura"
+    "utenze" = "utenza"
+    "fatture" = "fattura"
+    "letture" = "lettura"
+}
+
+$env:PGPASSWORD = $dbPassword
+$tuttoOk = $true
+foreach ($chiave in $mappaTabelle.Keys) {
+    $tabellaLocale = $mappaTabelle[$chiave]
+    $conteggioRemoto = $conteggiRemoti.$chiave
+    $risultatoPsql = psql -U acquaflow_app -d acquaflow_locale -t -c "SELECT COUNT(*) FROM $tabellaLocale;"
+    $conteggioLocale = ($risultatoPsql -join "").Trim()
+
+    if ("$conteggioRemoto" -eq "$conteggioLocale") {
+        Write-Host "OK - $tabellaLocale : $conteggioLocale record (corrisponde)"
+    } else {
+        Write-Host "ATTENZIONE - $tabellaLocale : remoto=$conteggioRemoto, locale=$conteggioLocale (NON corrispondono)"
+        $tuttoOk = $false
+    }
+}
+Remove-Item Env:\PGPASSWORD
+
+Write-Host ""
+if ($tuttoOk) {
+    Write-Host "Verifica completata: tutti i conteggi corrispondono."
+} else {
+    Write-Host "ATTENZIONE: alcuni conteggi non corrispondono. Controllare la migrazione."
+}
+
+Write-Host ""
 Write-Host "Installazione completata."
