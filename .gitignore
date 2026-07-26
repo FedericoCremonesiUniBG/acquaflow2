@@ -8,4 +8,6 @@ django/**/__pycache__/
 django/db.sqlite3
 
 servlet/target/
- 
+
+docs/Manuale_Installazione.docx
+docs/Scelte_Progettuali.docx
