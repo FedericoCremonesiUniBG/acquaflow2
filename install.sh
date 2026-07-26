@@ -12,6 +12,22 @@ if [ ! -d "$TOMCAT_PATH" ]; then
     exit 1
 fi
 
+echo "Verifica prerequisiti..."
+MANCA_QUALCOSA=false
+for cmd in python3 java psql curl; do
+    if ! command -v $cmd &> /dev/null; then
+        echo "Manca: $cmd"
+        MANCA_QUALCOSA=true
+    fi
+done
+if [ "$MANCA_QUALCOSA" = true ]; then
+    echo ""
+    echo "Alcuni prerequisiti non risultano installati."
+    echo "Su Debian/Ubuntu, è disponibile uno script che li installa: ./prepara_linux.sh"
+    echo "Su altre distribuzioni, installarli manualmente tramite il proprio gestore pacchetti."
+    exit 1
+fi
+
 RADICE_PROGETTO="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 echo "Arresto di eventuali istanze precedenti..."
