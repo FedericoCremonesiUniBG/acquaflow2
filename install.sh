@@ -110,9 +110,9 @@ verifica_tabella() {
     local conteggio_locale=$(PGPASSWORD="$DB_PASSWORD" psql -h localhost -U acquaflow_app -d acquaflow_locale -t -c "SELECT COUNT(*) FROM $tabella_locale;" | tr -d ' ')
 
     if [ "$conteggio_remoto" = "$conteggio_locale" ]; then
-        echo "OK - $tabella_locale: $conteggio_locale record (corrisponde)"
+        echo "OK - $tabella_locale: locale=$conteggio_locale, remoto=$conteggio_remoto (corrispondono)"
     else
-        echo "ATTENZIONE - $tabella_locale: remoto=$conteggio_remoto, locale=$conteggio_locale (NON corrispondono)"
+        echo "ATTENZIONE - $tabella_locale: locale=$conteggio_locale, remoto=$conteggio_remoto (NON corrispondono)"
         TUTTO_OK=false
     fi
 }

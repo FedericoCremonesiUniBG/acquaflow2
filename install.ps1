@@ -130,9 +130,9 @@ foreach ($chiave in $mappaTabelle.Keys) {
     $conteggioLocale = ($risultatoPsql -join "").Trim()
 
     if ("$conteggioRemoto" -eq "$conteggioLocale") {
-        Write-Host "OK - $tabellaLocale : $conteggioLocale record (corrisponde)"
+        Write-Host "OK - $tabellaLocale : locale=$conteggioLocale, remoto=$conteggioRemoto (corrispondono)"
     } else {
-        Write-Host "ATTENZIONE - $tabellaLocale : remoto=$conteggioRemoto, locale=$conteggioLocale (NON corrispondono)"
+        Write-Host "ATTENZIONE - $tabellaLocale : locale=$conteggioLocale, remoto=$conteggioRemoto (NON corrispondono)"
         $tuttoOk = $false
     }
 }
