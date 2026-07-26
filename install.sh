@@ -94,6 +94,7 @@ if [ "$TOMCAT_PRONTO" = false ]; then
 fi
 
 echo "=== Passo 7/7: Avvio della migrazione ==="
+echo "Migrazione in corso: può richiedere circa un minuto, a seconda della velocità della connessione. Non chiudere questa finestra."
 curl http://localhost:8080/migrazione/migra
 
 echo ""

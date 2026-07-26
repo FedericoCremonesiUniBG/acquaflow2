@@ -105,6 +105,7 @@ if (-not $tomcatPronto) {
 }
 
 Write-Host "=== Passo 7/7: Avvio della migrazione ==="
+Write-Host "Migrazione in corso: puo' richiedere circa un minuto, a seconda della velocita' della connessione. Non chiudere questa finestra."
 Invoke-RestMethod -Uri "http://localhost:8080/migrazione/migra"
 
 Write-Host ""
