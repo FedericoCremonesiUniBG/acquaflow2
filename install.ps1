@@ -36,6 +36,7 @@ psql -U postgres -c "DROP USER IF EXISTS acquaflow_app;"
 psql -U postgres -c "CREATE USER acquaflow_app WITH PASSWORD '$dbPassword';"
 psql -U postgres -c "CREATE DATABASE acquaflow_locale OWNER acquaflow_app;"
 psql -U postgres -d acquaflow_locale -c "GRANT ALL ON SCHEMA public TO acquaflow_app;"
+psql -U postgres -d acquaflow_locale -c "ALTER SCHEMA public OWNER TO acquaflow_app;"
 Remove-Item Env:\PGPASSWORD
 
 $env:PGPASSWORD = $dbPassword
