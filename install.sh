@@ -23,8 +23,7 @@ done
 if [ "$MANCA_QUALCOSA" = true ]; then
     echo ""
     echo "Alcuni prerequisiti non risultano installati."
-    echo "Su Debian/Ubuntu, è disponibile uno script che li installa: ./prepara_linux.sh"
-    echo "Su altre distribuzioni, installarli manualmente tramite il proprio gestore pacchetti."
+    echo "Consultare la sezione Prerequisiti del manuale per le istruzioni di installazione."
     exit 1
 fi
 
