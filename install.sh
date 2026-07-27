@@ -43,20 +43,15 @@ if [ -f "$TOMCAT_PATH/bin/shutdown.sh" ]; then
 fi
 
 echo "=== Passo 1/7: Creazione utente e database PostgreSQL ==="
+echo "Le operazioni amministrative su PostgreSQL richiedono i privilegi di sudo."
 DB_PASSWORD=$(LC_ALL=C tr -dc 'A-Za-z0-9' < /dev/urandom | head -c 20)
 
-# This prompts for the POSTGRES database password, NOT your Linux sudo password
-read -s -p "Inserisci la password dell'utente postgres (database): " POSTGRES_PASSWORD
-echo ""
-export PGPASSWORD="$POSTGRES_PASSWORD"
-
-psql -h localhost -U postgres -c "DROP DATABASE IF EXISTS acquaflow_locale;"
-psql -h localhost -U postgres -c "DROP USER IF EXISTS acquaflow_app;"
-psql -h localhost -U postgres -c "CREATE USER acquaflow_app WITH PASSWORD '$DB_PASSWORD';"
-psql -h localhost -U postgres -c "CREATE DATABASE acquaflow_locale OWNER acquaflow_app;"
-psql -h localhost -U postgres -d acquaflow_locale -c "GRANT ALL ON SCHEMA public TO acquaflow_app;"
-psql -h localhost -U postgres -d acquaflow_locale -c "ALTER SCHEMA public OWNER TO acquaflow_app;"
-unset PGPASSWORD
+sudo -u postgres psql -c "DROP DATABASE IF EXISTS acquaflow_locale;"
+sudo -u postgres psql -c "DROP USER IF EXISTS acquaflow_app;"
+sudo -u postgres psql -c "CREATE USER acquaflow_app WITH PASSWORD '$DB_PASSWORD';"
+sudo -u postgres psql -c "CREATE DATABASE acquaflow_locale OWNER acquaflow_app;"
+sudo -u postgres psql -d acquaflow_locale -c "GRANT ALL ON SCHEMA public TO acquaflow_app;"
+sudo -u postgres psql -d acquaflow_locale -c "ALTER SCHEMA public OWNER TO acquaflow_app;"
 
 PGPASSWORD="$DB_PASSWORD" psql -h localhost -U acquaflow_app -d acquaflow_locale -f "$RADICE_PROGETTO/db/schema_postgres.sql"
 
