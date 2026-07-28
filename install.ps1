@@ -5,6 +5,9 @@ param(
 
 $ErrorActionPreference = "Stop"
 
+# Richiamo dello script esterno tramite Dot-Sourcing (il punto iniziale e fondamentale!)
+. "$PSScriptRoot\setup_env.ps1"
+
 if (-not (Test-Path $TomcatPath)) {
     Write-Host "Percorso Tomcat non valido: $TomcatPath"
     exit 1
@@ -55,7 +58,11 @@ DB_PORT=5432
 Write-Host "=== Passo 3/7: Preparazione ambiente Python ==="
 Push-Location "$radiceProgetto\django"
 if (-not (Test-Path ".\venv")) {
-    python -m venv venv
+    if (Get-Command py -ErrorAction SilentlyContinue) {
+    	py -m venv venv
+    } else {
+    	python -m venv venv
+    }
 }
 .\venv\Scripts\Activate.ps1
 pip install -r requirements.txt --quiet
