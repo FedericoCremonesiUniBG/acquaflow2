@@ -36,23 +36,21 @@ ALLOWED_HOSTS = []
 
 # Application definition
 
+# Rimosse le app di default di Django (admin, auth, contenttypes, sessions,
+# messages, staticfiles): sono pensate per applicazioni con utenti, login e
+# pagine HTML. Questo progetto e' un web-service puro (nessun utente, nessuna
+# pagina), quindi restava solo "api", la nostra applicazione, a usarle davvero.
 INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
     'api',
 ]
 
+# Rimosse le righe collegate alle app tolte sopra (sessioni, CSRF via form,
+# autenticazione utenti, messaggi tra richieste): senza le rispettive app
+# installate non avrebbero piu' nulla su cui lavorare. Restano solo le
+# protezioni generiche, indipendenti dalle app rimosse.
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
@@ -64,10 +62,11 @@ TEMPLATES = [
         'DIRS': [],
         'APP_DIRS': True,
         'OPTIONS': {
+            # Rimossi i context processor di auth e messages (app non piu'
+            # installate). Non renderizziamo comunque nessun template in
+            # questo progetto, ma il file resta coerente con INSTALLED_APPS.
             'context_processors': [
                 'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
             ],
         },
     },
@@ -94,20 +93,8 @@ DATABASES = {
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
 
-AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
-]
+# AUTH_PASSWORD_VALIDATORS rimosso interamente: serve solo per validare le
+# password di un sistema di login utenti, che questo progetto non ha.
 
 
 # Internationalization
