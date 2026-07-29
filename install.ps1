@@ -119,7 +119,23 @@ Write-Host "Passo 6/7 completato."
 
 Write-Host "=== Passo 7/7: Avvio della migrazione ==="
 Write-Host "Migrazione in corso: puo' richiedere circa un minuto, a seconda della velocita' della connessione. Non chiudere questa finestra."
-Invoke-RestMethod -Uri "http://localhost:8080/migrazione/migra"
+
+$jobMigrazione = Start-Job -ScriptBlock {
+    Invoke-RestMethod -Uri "http://localhost:8080/migrazione/migra"
+}
+
+$simboli = @('|', '/', '-', '\')
+$i = 0
+while ($jobMigrazione.State -eq 'Running') {
+    Write-Host -NoNewline "`r$($simboli[$i % 4]) Migrazione dati in corso..."
+    $i++
+    Start-Sleep -Milliseconds 300
+}
+Write-Host -NoNewline "`r                                        `r"
+
+$risultatoMigrazione = Receive-Job -Job $jobMigrazione
+Remove-Job -Job $jobMigrazione
+Write-Host $risultatoMigrazione
 Write-Host "Passo 7/7 completato."
 
 Write-Host ""

@@ -117,7 +117,23 @@ echo "Passo 6/7 completato."
 
 echo "=== Passo 7/7: Avvio della migrazione ==="
 echo "Migrazione in corso: può richiedere circa un minuto, a seconda della velocità della connessione. Non chiudere questa finestra."
-curl http://localhost:8080/migrazione/migra
+
+RISULTATO_FILE=$(mktemp)
+curl -s http://localhost:8080/migrazione/migra > "$RISULTATO_FILE" &
+PID_MIGRAZIONE=$!
+
+SIMBOLI='|/-\'
+i=0
+while kill -0 $PID_MIGRAZIONE 2>/dev/null; do
+    i=$(( (i+1) % 4 ))
+    printf "\r%s Migrazione dati in corso..." "${SIMBOLI:$i:1}"
+    sleep 0.3
+done
+printf "\r                                        \r"
+
+wait $PID_MIGRAZIONE
+cat "$RISULTATO_FILE"
+rm -f "$RISULTATO_FILE"
 echo "Passo 7/7 completato."
 
 echo ""
