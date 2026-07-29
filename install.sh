@@ -59,6 +59,7 @@ psql -h localhost -U "$POSTGRES_USER" -d acquaflow_locale -c "ALTER SCHEMA publi
 unset PGPASSWORD
 
 PGPASSWORD="$DB_PASSWORD" psql -h localhost -U acquaflow_app -d acquaflow_locale -f "$RADICE_PROGETTO/db/schema_postgres.sql"
+echo "Passo 1/7 completato."
 
 echo "=== Passo 2/7: Configurazione credenziali ==="
 cat > "$RADICE_PROGETTO/django/.env" << EOF
@@ -68,6 +69,7 @@ DB_PASSWORD=$DB_PASSWORD
 DB_HOST=localhost
 DB_PORT=5432
 EOF
+echo "Passo 2/7 completato."
 
 echo "=== Passo 3/7: Preparazione ambiente Python ==="
 cd "$RADICE_PROGETTO/django"
@@ -77,16 +79,19 @@ fi
 source venv/bin/activate
 pip install -r requirements.txt --quiet
 python manage.py migrate
+echo "Passo 3/7 completato."
 
 echo "=== Passo 4/7: Avvio del web-service Django ==="
 nohup python manage.py runserver > django.log 2>&1 &
 disown
 sleep 5
+echo "Passo 4/7 completato."
 
 echo "=== Passo 5/7: Compilazione della Servlet ==="
 cd "$RADICE_PROGETTO/servlet"
 chmod +x ./mvnw
 ./mvnw clean package
+echo "Passo 5/7 completato."
 
 echo "=== Passo 6/7: Distribuzione su Tomcat ==="
 cp "$RADICE_PROGETTO/servlet/target/migrazione.war" "$TOMCAT_PATH/webapps/migrazione.war"
@@ -108,10 +113,12 @@ if [ "$TOMCAT_PRONTO" = false ]; then
     echo "Attendere qualche secondo, poi visitare manualmente: http://localhost:8080/migrazione/migra"
     exit 1
 fi
+echo "Passo 6/7 completato."
 
 echo "=== Passo 7/7: Avvio della migrazione ==="
 echo "Migrazione in corso: può richiedere circa un minuto, a seconda della velocità della connessione. Non chiudere questa finestra."
 curl http://localhost:8080/migrazione/migra
+echo "Passo 7/7 completato."
 
 echo ""
 echo "=== Verifica automatica dell'integrità della migrazione ==="

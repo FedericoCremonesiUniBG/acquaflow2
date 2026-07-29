@@ -45,6 +45,7 @@ Remove-Item Env:\PGPASSWORD
 $env:PGPASSWORD = $dbPassword
 psql -U acquaflow_app -d acquaflow_locale -f "$radiceProgetto\db\schema_postgres.sql"
 Remove-Item Env:\PGPASSWORD
+Write-Host "Passo 1/7 completato."
 
 Write-Host "=== Passo 2/7: Configurazione credenziali ==="
 @"
@@ -54,6 +55,7 @@ DB_PASSWORD=$dbPassword
 DB_HOST=localhost
 DB_PORT=5432
 "@ | Out-File -FilePath "$radiceProgetto\django\.env" -Encoding ascii
+Write-Host "Passo 2/7 completato."
 
 Write-Host "=== Passo 3/7: Preparazione ambiente Python ==="
 Push-Location "$radiceProgetto\django"
@@ -71,11 +73,13 @@ if ($LASTEXITCODE -ne 0) {
     Write-Host "Errore durante l'applicazione delle migrazioni Django. Installazione interrotta."
     exit 1
 }
+Write-Host "Passo 3/7 completato."
 
 Write-Host "=== Passo 4/7: Avvio del web-service Django ==="
 Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd '$radiceProgetto\django'; .\venv\Scripts\Activate.ps1; python manage.py runserver"
 Start-Sleep -Seconds 5
 Pop-Location
+Write-Host "Passo 4/7 completato."
 
 Write-Host "=== Passo 5/7: Compilazione della Servlet ==="
 Push-Location "$radiceProgetto\servlet"
@@ -85,6 +89,7 @@ if ($LASTEXITCODE -ne 0) {
     exit 1
 }
 Pop-Location
+Write-Host "Passo 5/7 completato."
 
 Write-Host "=== Passo 6/7: Distribuzione su Tomcat ==="
 Copy-Item "$radiceProgetto\servlet\target\migrazione.war" -Destination "$TomcatPath\webapps\migrazione.war" -Force
@@ -110,10 +115,12 @@ if (-not $tomcatPronto) {
     Write-Host "Attendere qualche secondo, poi visitare manualmente: http://localhost:8080/migrazione/migra"
     exit 1
 }
+Write-Host "Passo 6/7 completato."
 
 Write-Host "=== Passo 7/7: Avvio della migrazione ==="
 Write-Host "Migrazione in corso: puo' richiedere circa un minuto, a seconda della velocita' della connessione. Non chiudere questa finestra."
 Invoke-RestMethod -Uri "http://localhost:8080/migrazione/migra"
+Write-Host "Passo 7/7 completato."
 
 Write-Host ""
 Write-Host "=== Verifica automatica dell'integrita della migrazione ==="
