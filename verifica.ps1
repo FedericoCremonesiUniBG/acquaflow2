@@ -1,4 +1,8 @@
 $ErrorActionPreference = "Stop"
+
+# Richiamo dello script esterno tramite Dot-Sourcing (il punto iniziale e fondamentale!)
+. "$PSScriptRoot\setup_env.ps1"
+
 $radiceProgetto = $PSScriptRoot
 
 $envPath = "$radiceProgetto\django\.env"
