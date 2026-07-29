@@ -77,6 +77,7 @@ Write-Host "Passo 3/7 completato."
 
 Write-Host "=== Passo 4/7: Avvio del web-service Django ==="
 Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd '$radiceProgetto\django'; .\venv\Scripts\Activate.ps1; python manage.py runserver"
+Write-Host "Si e' aperta una nuova finestra per il web-service Django: non chiuderla, deve restare aperta."
 Start-Sleep -Seconds 5
 Pop-Location
 Write-Host "Passo 4/7 completato."
@@ -97,6 +98,7 @@ Remove-Item "$TomcatPath\webapps\migrazione" -Recurse -Force -ErrorAction Silent
 Push-Location "$TomcatPath\bin"
 .\startup.bat
 Pop-Location
+Write-Host "Si e' aperta una nuova finestra per Tomcat: non chiuderla, deve restare aperta."
 
 Write-Host "In attesa che Tomcat sia pronto..."
 $tomcatPronto = $false
@@ -118,7 +120,7 @@ if (-not $tomcatPronto) {
 Write-Host "Passo 6/7 completato."
 
 Write-Host "=== Passo 7/7: Avvio della migrazione ==="
-Write-Host "Migrazione in corso: puo' richiedere circa un minuto, a seconda della velocita' della connessione. Non chiudere questa finestra."
+Write-Host "Migrazione in corso: puo' richiedere circa un minuto, a seconda della velocita' della connessione. Non chiudere nessuna delle finestre aperte finora (questa, quella di Django, e quella di Tomcat)."
 
 $jobMigrazione = Start-Job -ScriptBlock {
     Invoke-RestMethod -Uri "http://localhost:8080/migrazione/migra"
