@@ -10,11 +10,15 @@ Write-Host "Questo script puo' essere eseguito da qualsiasi cartella: non fa rif
 Write-Host ""
 
 Write-Host "--- Python (richiesto: 3.12 o successiva) ---"
-if (Get-Command python -ErrorAction SilentlyContinue) {
+$pythonTrovato = $false
+if ((Get-Command python -ErrorAction SilentlyContinue) -and (Get-Command python).Source -notlike "*WindowsApps*") {
     python --version
+    $pythonTrovato = $true
 } elseif (Get-Command py -ErrorAction SilentlyContinue) {
     py --version
-} else {
+    $pythonTrovato = $true
+}
+if (-not $pythonTrovato) {
     Write-Host "Non trovato. Si prega di procedere al download." -ForegroundColor Red
 }
 Write-Host ""
