@@ -2,6 +2,9 @@ param(
     [string]$TomcatPath
 )
 
+# Richiamo dello script esterno tramite Dot-Sourcing (il punto iniziale e fondamentale!)
+. "$PSScriptRoot\setup_env.ps1"
+
 Write-Host "Controllo dei prerequisiti installati sul sistema."
 Write-Host "Questo script puo' essere eseguito da qualsiasi cartella: non fa riferimento a file del progetto."
 Write-Host ""
