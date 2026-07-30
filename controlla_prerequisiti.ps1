@@ -15,7 +15,7 @@ if (Get-Command python -ErrorAction SilentlyContinue) {
 } elseif (Get-Command py -ErrorAction SilentlyContinue) {
     py --version
 } else {
-    Write-Host "Non trovato." -ForegroundColor Red
+    Write-Host "Non trovato. Si prega di procedere al download." -ForegroundColor Red
 }
 Write-Host ""
 
@@ -24,7 +24,7 @@ if (Get-Command java -ErrorAction SilentlyContinue) {
     $versioneJava = cmd /c "java -version 2>&1"
     Write-Host ($versioneJava -join "`n")
 } else {
-    Write-Host "Non trovato." -ForegroundColor Red
+    Write-Host "Non trovato. Si prega di procedere al download." -ForegroundColor Red
 }
 Write-Host ""
 
@@ -32,7 +32,7 @@ Write-Host "--- PostgreSQL (richiesta: qualsiasi versione recente) ---"
 if (Get-Command psql -ErrorAction SilentlyContinue) {
     psql --version
 } else {
-    Write-Host "Non trovato." -ForegroundColor Red
+    Write-Host "Non trovato. Si prega di procedere al download." -ForegroundColor Red
 }
 Write-Host ""
 
@@ -40,7 +40,7 @@ Write-Host "--- Git ---"
 if (Get-Command git -ErrorAction SilentlyContinue) {
     git --version
 } else {
-    Write-Host "Non trovato." -ForegroundColor Red
+    Write-Host "Non trovato. Si prega di procedere al download." -ForegroundColor Red
 }
 Write-Host ""
 
