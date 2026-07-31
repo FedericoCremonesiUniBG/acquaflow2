@@ -6,7 +6,7 @@ if (-not $env:JAVA_HOME) {
         $env:JAVA_HOME = (Get-ItemProperty -Path "$javaRegPath\$latestVersion").JavaHome
     } else {
         # Fallback: cerca in percorsi standard
-        $possibleJava = Get-ChildItem "C:\Program Files\Java\jdk*" -ErrorAction SilentlyContinue | Sort-Object Name -Descending | Select-Object -First 1
+        $possibleJava = Get-ChildItem "C:\Program Files\Java\jdk*", "C:\Program Files\Eclipse Adoptium\jdk*" -ErrorAction SilentlyContinue | Sort-Object Name -Descending | Select-Object -First 1
         if ($possibleJava) { $env:JAVA_HOME = $possibleJava.FullName }
     }
 }
