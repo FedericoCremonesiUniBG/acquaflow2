@@ -1,4 +1,42 @@
-# Rilevamento automatico di JAVA_HOME tramite il Registro di Sistema
+Write-Host ""
+Write-Host "=======================================================" -ForegroundColor Blue
+Write-Host "         CONFIGURAZIONE AMBIENTE DI LAVORO" -ForegroundColor Blue
+Write-Host "=======================================================" -ForegroundColor Blue
+Write-Host "Rilevamento e configurazione dinamica dei percorsi (PATH)." -ForegroundColor Gray
+Write-Host ""
+
+# Funzione helper per l'output coerente
+function Write-RisultatoConfig {
+    param(
+        [string]$Nome, 
+        [bool]$Successo, 
+        [string]$Dettaglio, 
+        [bool]$Fatale = $false
+    )
+    
+    $padNome = $Nome.PadRight(15)
+    if ($Successo) {
+        Write-Host "[ OK ] " -ForegroundColor Green -NoNewline
+        Write-Host "$padNome " -NoNewline -ForegroundColor White
+        Write-Host "- $Dettaglio" -ForegroundColor Gray
+    } else {
+        Write-Host "[ ERRORE ] " -ForegroundColor Red -NoNewline
+        Write-Host "$padNome " -NoNewline -ForegroundColor White
+        Write-Host "- $Dettaglio" -ForegroundColor Red
+        
+        if ($Fatale) {
+            Write-Host ""
+            Write-Host "=> Esecuzione interrotta. Risolvere il problema per continuare." -ForegroundColor Red
+            Write-Host ""
+            exit 1
+        }
+    }
+}
+
+# --- 1. RILEVAMENTO DINAMICO JAVA (JDK) ---
+$javaTrovato = $false
+$javaDettaglio = ""
+
 if (-not $env:JAVA_HOME) {
     $javaRegPath = "HKLM:\SOFTWARE\JavaSoft\JDK"
     if (Test-Path $javaRegPath) {
@@ -12,40 +50,72 @@ if (-not $env:JAVA_HOME) {
 }
 
 if ($env:JAVA_HOME) {
-    $env:Path = "$env:JAVA_HOME\bin;" + $env:Path
-    Write-Host "JDK trovato in: $env:JAVA_HOME"
+    # Evita di duplicare la path se lo script viene eseguito più volte
+    if ($env:Path -notlike "*$env:JAVA_HOME\bin*") {
+        $env:Path = "$env:JAVA_HOME\bin;" + $env:Path
+    }
+    $javaTrovato = $true
+    $javaDettaglio = "JAVA_HOME configurato: $env:JAVA_HOME"
 } else {
-    Write-Host "ERRORE: JDK non trovato nel sistema. Installare Java o impostare JAVA_HOME." -ForegroundColor Red
-    exit 1
+    $javaDettaglio = "JDK non trovato. Installare Java o impostare la variabile JAVA_HOME."
 }
 
-# Verifica e rilevamento automatico di PostgreSQL (psql)
-if (-not (Get-Command psql -ErrorAction SilentlyContinue)) {
+Write-RisultatoConfig -Nome "Java (JDK)" -Successo $javaTrovato -Dettaglio $javaDettaglio -Fatale $true
+
+
+# --- 2. RILEVAMENTO DINAMICO POSTGRESQL ---
+$pgTrovato = $false
+$pgDettaglio = ""
+
+if (Get-Command psql -ErrorAction SilentlyContinue) {
+    $pgTrovato = $true
+    $pgDettaglio = "Gia' presente nel PATH di sistema"
+} else {
     # Cerca la cartella di installazione di PostgreSQL
     $pgBaseDir = "C:\Program Files\PostgreSQL"
     if (Test-Path $pgBaseDir) {
         $latestPg = Get-ChildItem $pgBaseDir -Directory | Sort-Object Name -Descending | Select-Object -First 1
         if ($latestPg -and (Test-Path "$($latestPg.FullName)\bin\psql.exe")) {
             $env:Path = "$($latestPg.FullName)\bin;" + $env:Path
-            Write-Host "PostgreSQL trovato in: $($latestPg.FullName)"
+            $pgTrovato = $true
+            $pgDettaglio = "Aggiunto al PATH: $($latestPg.FullName)\bin"
         }
     }
 }
 
-if (-not (Get-Command psql -ErrorAction SilentlyContinue)) {
-    Write-Host "ERRORE: 'psql' non e' stato trovato. Assicurarsi che PostgreSQL sia installato." -ForegroundColor Red
-    exit 1
+if (-not $pgTrovato) {
+    $pgDettaglio = "Comando 'psql' non trovato. Assicurarsi che PostgreSQL sia installato."
 }
 
-# 3. RILEVAMENTO DINAMICO PYTHON
-if (-not (Get-Command python -ErrorAction SilentlyContinue) -or (Get-Command python).Source -like "*WindowsApps*") {
-    # Cerca la cartella di installazione standard di Python in AppData o Program Files
+Write-RisultatoConfig -Nome "PostgreSQL" -Successo $pgTrovato -Dettaglio $pgDettaglio -Fatale $true
+
+
+# --- 3. RILEVAMENTO DINAMICO PYTHON ---
+$pyTrovato = $false
+$pyDettaglio = ""
+
+if ((Get-Command python -ErrorAction SilentlyContinue) -and (Get-Command python).Source -notlike "*WindowsApps*") {
+    $pyTrovato = $true
+    $pyDettaglio = "Gia' presente nel PATH di sistema"
+} else {
+    # Cerca la cartella di installazione standard di Python in AppData
     $pythonBase = "$env:LOCALAPPDATA\Programs\Python"
     if (Test-Path $pythonBase) {
         $latestPython = Get-ChildItem $pythonBase -Directory | Sort-Object Name -Descending | Select-Object -First 1
         if ($latestPython) {
+            # Aggiunge al PATH sia la root di Python che la cartella Scripts (per pip)
             $env:Path = "$($latestPython.FullName);$($latestPython.FullName)\Scripts;" + $env:Path
-            Write-Host "Python trovato in: $($latestPython.FullName)"
+            $pyTrovato = $true
+            $pyDettaglio = "Aggiunto al PATH: $($latestPython.FullName)"
         }
     }
 }
+
+if (-not $pyTrovato) {
+    # Non lo segno come fatale perché lo script dei prerequisiti farà un controllo più approfondito anche su 'py'
+    $pyDettaglio = "Non configurato nel PATH automaticamente. Il controllo prerequisiti verifichera' ulteriormente."
+}
+
+Write-RisultatoConfig -Nome "Python" -Successo $pyTrovato -Dettaglio $pyDettaglio -Fatale $false
+
+Write-Host ""
